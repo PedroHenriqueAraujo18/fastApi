@@ -1,19 +1,17 @@
 from fastapi import FastAPI
-
+from http import HTTPStatus
+from fast_zero.schemas import Message
 app = FastAPI() #Iniciando uma Aplicação do FastAPI
 
-@app.get('/') #Definindo um endpoint com o endereço acessivel pelo metodo HTTP GET
-def impares_e_pares():
-    pares = []
-    impares =[]
+@app.get('/',status_code=HTTPStatus.OK, response_model=Message) #Definindo um endpoint com o endereço acessivel pelo metodo HTTP GET
+def helloWord():
+    return{'message':'Hello World'}
 
-    for i in range(10):
-        if i%2 ==0:
-            pares.append(i)
-        else:
-            impares.append(i)
-   # Transforma a lista em tuplas, pois não são hashables
-    tuple_1 = tuple(pares) 
-    tuple_2 = tuple(impares)
-   
-    return{tuple_1,tuple_2}
+@app.post('/users/',status_code = HTTPStatus.CREATED) 
+def create_user():
+    ...
+
+@app.post('/wine/',status_code = HTTPStatus.CREATED)
+def create_wine():
+    ...
+

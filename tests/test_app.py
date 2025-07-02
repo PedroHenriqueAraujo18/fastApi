@@ -9,5 +9,5 @@ def test_helloworld():
     response  = client.get('/')
 
     assert response.status_code == HTTPStatus.OK
-    resultado ='Hello World'
-    assert response.json() == resultado
+   
+    assert response.json() == {'message': 'Hello World'}

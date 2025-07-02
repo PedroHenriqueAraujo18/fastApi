@@ -1,0 +1,3 @@
+task test -> roda os testes
+task run -> roda o servidor
+task post_test -> mostra os erros mais claramente

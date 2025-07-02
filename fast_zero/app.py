@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from http import HTTPStatus
-from fast_zero.schemas import Message,UserSchema,WineSchema
+from fast_zero.schemas import Message,UserSchema,WineSchema,UserPublic,UserDB
 app = FastAPI() #Iniciando uma Aplicação do FastAPI
+
+
+database = []
+
 
 
 
@@ -21,15 +25,26 @@ def helloWord():
 
 '''
 Nesse app.post tem a rota, o codigo de status sendo 
-provido pela classe HTTPStatus da http , e tem o para
+provido pela classe HTTPStatus da http e o response model
+para um modelo de resposta do endpoint definido ,  o para
 metro que vem do schemas.py usando pydantic e tendo a 
 validação automática
-'''
-@app.post('/users/',status_code = HTTPStatus.CREATED) 
-def create_user(user : UserSchema):
-    ...
 
-@app.post('/wine/',status_code = HTTPStatus.CREATED)
+model_dump() é um método de modelos do pydantic que converte o objeto em dicionário. 
+Por exemplo, user.model_dump() 
+faria a conversão em {'username': 'nome do usuário', 
+'password': 'senha do usuário', 'email': 'email do usuário'}.
+Os ** querem dizer que o dicionário será desempacotado em parâmetros.
+Fazendo com que a chamada seja equivalente a UserDB(username='nome do usuário', 
+password='senha do usuário', email='email do usuário', id=len(database) + 1)
+'''
+@app.post('/users/',status_code = HTTPStatus.CREATED,response_model = UserPublic) 
+def create_user(user : UserSchema):
+    user_created = UserDB(**user.model_dump(), id=len(database)+1)
+    database.append(user_created)
+    return user_created
+
+@app.post('/wine/',status_code = HTTPStatus.CREATED, response_model = WineSchema)
 def create_wine(wine : WineSchema):
-    ...
+    return wine
 

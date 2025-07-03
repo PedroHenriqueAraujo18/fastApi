@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from http import HTTPStatus
 from fast_zero.schemas import Message,UserSchema,WineSchema,UserPublic,UserDB,WineDB,UserList
 app = FastAPI() #Iniciando uma Aplicação do FastAPI
@@ -55,3 +55,13 @@ def create_wine(wine : WineSchema):
 @app.get('/users/', response_model = UserList)
 def users_list():
     return {'users': database_users}
+
+@app.put('/users/{user_id}',response_model = UserPublic)
+def update_user(user_id: int, user: UserSchema):
+    if user_id > len(database_users) or user_id < 1:
+        raise HTTPException(
+            status_code = HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
+        )
+    user_new_id = UserDB(**user.model_dump(),id = user_id)
+    database_users[user_id - 1] = user_new_id
+    return user_new_id

@@ -54,4 +54,4 @@ def create_wine(wine : WineSchema):
 
 @app.get('/users/', response_model = UserList)
 def users_list(user : UserList):
-    return ('users': database)
+    return {'users': database}

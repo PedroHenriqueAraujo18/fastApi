@@ -8,13 +8,25 @@ class UserSchema(BaseModel):
     email : EmailStr
     password : str
 
-class UserDB(BaseModel):
+class UserDB(UserSchema):
     id:int
 class UserPublic(BaseModel):
     id: int
     username:str
     email:EmailStr
+
+class UserList(BaseModel):
+    users : list[UserPublic]
+
+
 class WineSchema(BaseModel):
+    
     name : str
     price : float
     wine_type : str
+
+class WineDB(WineSchema):
+    id:int
+
+class WineList(BaseModel):
+    wines : list[WineSchema]

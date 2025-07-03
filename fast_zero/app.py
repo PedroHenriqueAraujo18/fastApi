@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from http import HTTPStatus
-from fast_zero.schemas import Message,UserSchema,WineSchema,UserPublic,UserDB
+from fast_zero.schemas import Message,UserSchema,WineSchema,UserPublic,UserDB,WineDB,UserList
 app = FastAPI() #Iniciando uma Aplicação do FastAPI
 
 
@@ -43,8 +43,15 @@ def create_user(user : UserSchema):
     user_created = UserDB(**user.model_dump(), id=len(database)+1)
     database.append(user_created)
     return user_created
-
-@app.post('/wine/',status_code = HTTPStatus.CREATED, response_model = WineSchema)
+'''
+rota post do wine que retorna o WineDB que ja possui
+'''
+@app.post('/wine/',status_code = HTTPStatus.CREATED, response_model = WineDB)
 def create_wine(wine : WineSchema):
-    return wine
+    wine_created = WineDB(**wine.model_dump(),id = len(database)+1)
+    database.append(wine_created)
+    return wine_created
 
+@app.get('/users/', response_model = UserList)
+def users_list(user : UserList):
+    return ('users': database)

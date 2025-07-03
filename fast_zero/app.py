@@ -4,8 +4,8 @@ from fast_zero.schemas import Message,UserSchema,WineSchema,UserPublic,UserDB,Wi
 app = FastAPI() #Iniciando uma Aplicação do FastAPI
 
 
-database = []
-
+database_wine = []
+database_users = []
 
 
 
@@ -40,18 +40,18 @@ password='senha do usuário', email='email do usuário', id=len(database) + 1)
 '''
 @app.post('/users/',status_code = HTTPStatus.CREATED,response_model = UserPublic) 
 def create_user(user : UserSchema):
-    user_created = UserDB(**user.model_dump(), id=len(database)+1)
-    database.append(user_created)
+    user_created = UserDB(**user.model_dump(), id=len(database_users)+1)
+    database_users.append(user_created)
     return user_created
 '''
 rota post do wine que retorna o WineDB que ja possui
 '''
 @app.post('/wine/',status_code = HTTPStatus.CREATED, response_model = WineDB)
 def create_wine(wine : WineSchema):
-    wine_created = WineDB(**wine.model_dump(),id = len(database)+1)
-    database.append(wine_created)
+    wine_created = WineDB(**wine.model_dump(),id = len(database_wine)+1)
+    database_wine.append(wine_created)
     return wine_created
 
 @app.get('/users/', response_model = UserList)
-def users_list(user : UserList):
-    return {'users': database}
+def users_list():
+    return {'users': database_users}

@@ -1,0 +1,25 @@
+SQL-Alchemy -> um Kit de ferramentas para trabalhar com bancos de dados 
+SQL e Python, ele abstrai as chamadas diretas paras drivers especificos
+-----------------------------------------------------------------------
+pip install sqlalchemy
+pip install psycopg-binary
+-----------------------------------------------------------------------
+Core - > e o componente mais basico do sqlalchemy.
+Ele e quem cria as conexões com o banco de dados,
+faz as buscas e define tipos. São eles:
+
+*Engine
+       Connection : Interface para comunicar com o banco
+       Dialect: Mecanismos especificos para cada banco de dados
+       Pool: Deixas as conexões em mem´roa para reutilização
+
+*SQL Expression Language: Construções em Python para representar SQL
+
+*Schemas/Types : Construções em python que representam tabelas, colunas
+e tipos de dados.
+-----------------------------------------------------------------------
+A Engine e a coração de tudo, basicamente a fábricas das conexões com
+banco de dados. Ela permite uma forma dinâmica de comunicação com dife
+rentes drivers de banco de dados usando dialetos especificos para cada
+
+ENGINE--->DIALETO--->DBAPI

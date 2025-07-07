@@ -30,5 +30,16 @@ hooks são blocos de códigos que podem ser inseridos ou removidos antes
 e depois de uma operação, podendo modificar os dados antes ou depois de
 certas operações serem executadas pelo sqlalchemy
 
+-----------------------------------------------------------------------
 
+poetry add alembic
 
+Adiciona uma ferramenta de migração de banco de dados
+Isso bom quando queremos voltar versões do banco e
+alterar coisas no banco de dados.
+
+ele adiciona varios arquivos, dentre eles o,alembic.ini
+aonde fica as configuração das migrações, e cria um env.py 
+que é resposavel e como as migrações são feitas e um 
+script.py.mako que é um template para as novas migrações
+-----------------------------------------------------------------------

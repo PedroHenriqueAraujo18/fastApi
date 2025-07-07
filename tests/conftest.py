@@ -21,6 +21,10 @@ from sqlalchemy.orm import Session
 from contextlib import contextmanager
 from datetime import datetime
 
+
+@pytest.fixture
+def mock_db_time():
+    return _mock_db_time
 @pytest.fixture
 def client():
     return TestClient(app)
@@ -57,17 +61,31 @@ com funcionalidade interna do python
 
 
 Oque é um with?
+é um comando  like try finally que quando queremos abrir algo
+mas escrevemos nele mas dá algo erro e queremos que execute mesmo
+assim sem quebrar a aplicação.
+
+Eventos ORM comuns:
+|--------------|----------------|
+|Evento	       |Descrição       |
+|--------------|----------------|
+|before_insert |Antes do INSERT.|
+|after_insert  |Depois do INSERT|
+|before_update |Antes do UPDATE.|
+|after_update  |Depois do UPDATE|
+|before_delete |Antes do DELETE.|
+|after_delete  |Depois do DELETE|
+|-------------------------------|
 
 '''
 @contextmanager
 def _mock_db_time(*, model, time=datetime(2025,7,7)):
-    def fake_time_hook(mapper,conn, target):
+    def fake_time_hook(mapper,connection, target):
         if hasattr(target,'created_at'):
             target.created_at = time
-        else:
-            raise AttributeError("Erro, não foi encontrado tal atributo")   
+   
     event.listen(model,'before_insert',fake_time_hook)
 
     yield time
 
-    event.remove(model, 'after_insert',fake_time_hook) 
+    event.remove(model, 'before_insert',fake_time_hook) 

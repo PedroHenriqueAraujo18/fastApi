@@ -1,7 +1,6 @@
 from sqlalchemy import select
-
+from dataclasses import asdict
 from fast_zero.models import User #Wine
-
 '''
 O método .add da sessão, adiciona o registro a sessão.
 O dado fica em um estado transiente. 
@@ -16,11 +15,18 @@ Usamos o método .commit.
 
 '''
 
-def teste_create_user_in_db(session):
-    new_user = User(username ='pedro',password='secret',email='teste@test')
-    session.add(new_user)
-    session.commit()
+def teste_create_user_in_db(session, mock_db_time):
+    with mock_db_time(model = User) as time:#inicia o gerenciador de contexto passando o modelo
+     new_user = User(username ='pedro',password='secret',email='teste@test')
+     session.add(new_user)
+     session.commit()
 
     user = session.scalar(select(User).where(User.username == 'pedro'))
     
-    assert user.username == 'pedro'
+    assert asdict(user) == { #converte em dict para simplifica a validação
+       'id':1,
+       'username':'pedro',
+       'password':'secret',
+       'email':'teste@test',
+       'created_at':time,
+    }

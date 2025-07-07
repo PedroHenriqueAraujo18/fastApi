@@ -23,3 +23,12 @@ banco de dados. Ela permite uma forma dinâmica de comunicação com dife
 rentes drivers de banco de dados usando dialetos especificos para cada
 
 ENGINE--->DIALETO--->DBAPI
+-----------------------------------------------------------------------
+
+O sqlalchemy tem um sistema de eventos, conhecidos como hooks, esses 
+hooks são blocos de códigos que podem ser inseridos ou removidos antes
+e depois de uma operação, podendo modificar os dados antes ou depois de
+certas operações serem executadas pelo sqlalchemy
+
+
+

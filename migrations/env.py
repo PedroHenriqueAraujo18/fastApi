@@ -1,3 +1,8 @@
+
+'''Foi adicionados as configurações do projeto, e o carregamento do env
+usando dotenv, e insercendo ele no local do alembic
+'''
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config

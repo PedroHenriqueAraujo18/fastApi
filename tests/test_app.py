@@ -68,7 +68,7 @@ def test_update_user(client):
             'password': 'mynewpassword',
         },
     )
-    assert response.status_code == HTTPStatus.OK
+    assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',

@@ -1,5 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Depends
 from http import HTTPStatus
+from  sqlalchemy import select
+from sqlalchemy.orm import Session
+from fast_zero.database import get_session
+from fast_zero.models import User
 from fast_zero.schemas import (
     Message,
     UserSchema,
@@ -12,9 +16,8 @@ from fast_zero.schemas import (
 
 app = FastAPI()  # Iniciando uma Aplicação do FastAPI
 
-
+database_users =[]
 database_wine = []
-database_users = []
 
 
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)
@@ -37,21 +40,38 @@ para um modelo de resposta do endpoint definido ,  o para
 metro que vem do schemas.py usando pydantic e tendo a 
 validação automática
 
-model_dump() é um método de modelos do pydantic que converte o objeto em dicionário. 
-Por exemplo, user.model_dump() 
-faria a conversão em {'username': 'nome do usuário', 
-'password': 'senha do usuário', 'email': 'email do usuário'}.
-Os ** querem dizer que o dicionário será desempacotado em parâmetros.
-Fazendo com que a chamada seja equivalente a UserDB(username='nome do usuário', 
-password='senha do usuário', email='email do usuário', id=len(database) + 1)
+na parte de session : Session diz que essa função vai 
+ser executada antes do valor retornado por get_session
+e esse valor sera atribuido a session
 """
 
 
 @app.post('/users/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user(user: UserSchema):
-    user_created = UserDB(**user.model_dump(), id=len(database_users) + 1)
-    database_users.append(user_created)
-    return user_created
+
+def create_user(user: UserSchema, session: Session = Depends(get_session)):
+    db_user = session.scalar(
+        select(User).where((User.username ==user.username) | (User.email == user.email))
+    )
+    if db_user:
+        if db_user.username == user.username:
+            raise HTTPException(
+                status_code = HTTPStatus.CONFLICT,
+                detail = 'Nome de usuário existente'
+            )
+        elif db_user.email == user.email:
+            raise HTTPException(
+                status_code = HTTPStatus.CONFLICT,
+                detail = 'Email já cadastrado'
+            )
+    db_user = User(
+        username = user.username,password = user.password, email = user.email
+    )
+
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
 
 
 """

@@ -2,3 +2,4 @@ task test -> roda os testes
 task run -> roda o servidor
 task post_test -> mostra os erros mais claramente
 poetry shell -> entra na venv e no shell do poetry
+poetry run ruff --fix 

@@ -12,26 +12,43 @@ usa a fixture session
 
 """
 
+
 import pytest
+
 from fastapi.testclient import TestClient
 from fast_zero.app import app
 from fast_zero.models import table_registry
+from fast_zero.database import get_session
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from contextlib import contextmanager
 from datetime import datetime
+from sqlalchemy.pool import StaticPool
+from dotenv import load_dotenv
+load_dotenv()
+
+
 
 
 @pytest.fixture
 def mock_db_time():
     return _mock_db_time
+
+
 @pytest.fixture
-def client():
-    return TestClient(app)
+def client(session):
+    def get_session_override():
+        return session
+    with TestClient(app) as client:
+        app.dependency_overrides[get_session] = get_session_override #substitui a função get session pela nossa função
+        yield client
+    app.dependency_overrides.clear()#limpa a sobrescrita qe fizemos pra usar a fixture
 
 @pytest.fixture
 def session():
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine('sqlite:///:memory:',
+                            connect_args={'check_same_thread': False},
+        poolclass=StaticPool)
     table_registry.metadata.create_all(engine)
 
     with Session(engine) as session:

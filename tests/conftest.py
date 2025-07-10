@@ -1,3 +1,16 @@
+import pytest
+from fast_zero.models import User, table_registry
+from fastapi.testclient import TestClient
+from fast_zero.app import app
+
+from fast_zero.database import get_session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import Session
+from contextlib import contextmanager
+from datetime import datetime
+from sqlalchemy.pool import StaticPool
+from dotenv import load_dotenv
+load_dotenv()
 """
 Em vista de não termos o DRY criou-se esse conftest.py
 esse arquivo é especial e detectado pelo pytest
@@ -13,21 +26,18 @@ usa a fixture session
 """
 
 
-import pytest
-
-from fastapi.testclient import TestClient
-from fast_zero.app import app
-from fast_zero.models import table_registry
-from fast_zero.database import get_session
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import Session
-from contextlib import contextmanager
-from datetime import datetime
-from sqlalchemy.pool import StaticPool
-from dotenv import load_dotenv
-load_dotenv()
 
 
+# ...
+
+@pytest.fixture
+def user(session):
+    user = User(username='Teste', email='teste@test.com', password='testtest')
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException,Depends
+from sqlalchemy.exc import IntegrityError
 from http import HTTPStatus
 from  sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -9,7 +10,6 @@ from fast_zero.schemas import (
     UserSchema,
     WineSchema,
     UserPublic,
-    UserDB,
     WineDB,
     UserList,
 )
@@ -85,21 +85,43 @@ def create_wine(wine: WineSchema):
     database_wine.append(wine_created)
     return wine_created
 
+'''
+Os parametros offset e limit são utilizados para paginar os resultatods, é util
+em grandes bases de dados
 
+offset -> permite pular um numero especifico antes de fazer a busca oque é para 
+navegação
+
+limit -> define o maximo de registros a serem retornados, permitindo o controle 
+da quantidade de dados envados na resposta
+'''
 @app.get('/users/', response_model=UserList)
-def users_list():
-    return {'users': database_users}
-
+def users_list(
+    skip : int = 0, limit: int = 100, session : Session = Depends(get_session)
+):
+    users  = session.scalars(select(User).offset(skip).limit(limit)).all()
+    return {'users': users}
+    
 
 @app.put('/users/{user_id}', response_model=UserPublic)
-def update_user(user_id: int, user: UserSchema):
-    if user_id > len(database_users) or user_id < 1:
+def update_user(user_id: int, user: UserSchema,session : Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+    if db_user is None:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
+            status_code = HTTPStatus.NOT_FOUND, detail = 'Usuário não encontrado'
         )
-    user_new_id = UserDB(**user.model_dump(), id=user_id)
-    database_users[user_id - 1] = user_new_id
-    return user_new_id
+    try :
+        db_user.username = user.username
+        db_user.password = user.password
+        db_user.email = user.email
+        session.commit()
+        session.refresh(db_user)
+        return db_user
+    except IntegrityError:
+             raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, 
+            detail='Usuário ou email ja existe'
+        )
 
 
 @app.delete('/users/{user_id}', response_model=Message)

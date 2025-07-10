@@ -1,5 +1,5 @@
 from http import HTTPStatus
-
+from fast_zero.schemas import  UserPublic
 
 def test_helloworld(client):
     response = client.get('/')
@@ -8,6 +8,30 @@ def test_helloworld(client):
 
     assert response.json() == {'message': 'Hello World'}
 
+
+def test_update_integretiy_error(client,user):
+    client.post(
+        '/users',
+        json={
+            'username': 'fausto',
+            'email': 'fausto@example.com',
+            'password': 'secret',
+        },
+    )
+
+    # Alterando o user.username das fixture para fausto
+    response_update = client.put( 
+        f'/users/{user.id}',
+        json={
+            'username': 'fausto',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+    assert response_update.status_code == HTTPStatus.CONFLICT
+    assert response_update.json() == {
+        'detail': 'Usuário ou email ja existe'
+    }
 
 def test_wine_creation(client):
     response = client.post(
@@ -49,17 +73,19 @@ def test_read_users(client):
     response = client.get('/users/')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'users': [
-            {
-                'username': 'pedro',
-                'email': 'pedro@example.com',
-                'id': 1,
-            }
-        ]
-    }
+        'users': []   
+        }
+          
+'''
+A integração com ORM não é direta, portanto usa-se o ConfigDict nos schemas para
+a conversão.
+'''
+def test_read_user_with_users(client,user):
+    user_schema = UserPublic.model_validate(user).model_dump()
+    response = client.get('/users/')
+    assert response.json() == {'users':[user_schema]}
 
-
-def test_update_user(client):
+def test_update_user(client,user):
     response = client.put(
         '/users/1',
         json={
@@ -68,7 +94,7 @@ def test_update_user(client):
             'password': 'mynewpassword',
         },
     )
-    assert response.status_code == HTTPStatus.CREATED
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',

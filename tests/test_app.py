@@ -1,6 +1,7 @@
 from http import HTTPStatus
+from jwt import decode
 from fast_zero.schemas import  UserPublic
-
+from fast_zero.securtiy import SECRET_KEY, create_token
 def test_helloworld(client):
     response = client.get('/')
 
@@ -107,3 +108,10 @@ def test_delete_user(client,user):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Usuário deletado'}
+
+def  test_jwt():
+    data = {'test':'test'}
+    token = create_token(data)
+    decoded = decode(token,SECRET_KEY,algorithms=['HS256'])
+    assert decoded['test'] == data['test']
+    assert 'exp' in decoded

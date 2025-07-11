@@ -16,7 +16,7 @@ from fast_zero.schemas import (
 
 app = FastAPI()  # Iniciando uma Aplicação do FastAPI
 
-database_users =[]
+
 database_wine = []
 
 
@@ -117,6 +117,7 @@ def update_user(user_id: int, user: UserSchema,session : Session = Depends(get_s
         session.commit()
         session.refresh(db_user)
         return db_user
+    
     except IntegrityError:
              raise HTTPException(
             status_code=HTTPStatus.CONFLICT, 
@@ -125,10 +126,10 @@ def update_user(user_id: int, user: UserSchema,session : Session = Depends(get_s
 
 
 @app.delete('/users/{user_id}', response_model=Message)
-def delete_user(user_id: int):
-    if user_id > len(database_users) or user_id < 1:
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+    if not db_user:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado'
+            status_code = HTTPStatus.NOT_FOUND, detail = 'Usuário não encontrado'
         )
-    del database_users[user_id - 1]
     return {'message': 'Usuário deletado'}

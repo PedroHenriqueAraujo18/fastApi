@@ -5,6 +5,15 @@ class Message(BaseModel):
     message: str
 
 
+'''
+Em um contexto de jwt, o acess token representa a sessão do user
+e o tokentype e um tipo de autenticação que sera incluso no cabe
+çalho de autorização de cada solicitação
+'''
+class Token(BaseModel):
+    access_token:str
+    token_type:str
+
 class UserSchema(BaseModel):
     username: str
     email: EmailStr

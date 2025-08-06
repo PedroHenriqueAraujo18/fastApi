@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from jwt import decode
 from fast_zero.schemas import  UserPublic
-from fast_zero.securtiy import SECRET_KEY, create_token
+from fast_zero.security import SECRET_KEY, create_token
 def test_helloworld(client):
     response = client.get('/')
 

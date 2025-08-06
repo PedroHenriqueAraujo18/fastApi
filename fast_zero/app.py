@@ -4,6 +4,7 @@ from http import HTTPStatus
 from  sqlalchemy import select
 from sqlalchemy.orm import Session
 from fast_zero.database import get_session
+from fast_zero.security import get_password_hash
 from fast_zero.models import User
 from fast_zero.schemas import (
     Message,
@@ -53,6 +54,7 @@ def create_user(user: UserSchema, session: Session = Depends(get_session)):
         select(User).where((User.username ==user.username) | (User.email == user.email))
     )
     if db_user:
+
         if db_user.username == user.username:
             raise HTTPException(
                 status_code = HTTPStatus.CONFLICT,
@@ -63,8 +65,13 @@ def create_user(user: UserSchema, session: Session = Depends(get_session)):
                 status_code = HTTPStatus.CONFLICT,
                 detail = 'Email já cadastrado'
             )
+        
+    hashed_password = get_password_hash(user.password)
+
     db_user = User(
-        username = user.username,password = user.password, email = user.email
+        username = user.username,
+        password =hashed_password,
+        email = user.email
     )
 
     session.add(db_user)
@@ -112,7 +119,7 @@ def update_user(user_id: int, user: UserSchema,session : Session = Depends(get_s
         )
     try :
         db_user.username = user.username
-        db_user.password = user.password
+        db_user.password = get_password_hash(user.password)
         db_user.email = user.email
         session.commit()
         session.refresh(db_user)
